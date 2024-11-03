@@ -1,0 +1,14 @@
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\bin\Debug\net8.0\MealyToMooreConverteCSharp.exe
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\bin\Debug\net8.0\MealyToMooreConverteCSharp.deps.json
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\bin\Debug\net8.0\MealyToMooreConverteCSharp.runtimeconfig.json
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\bin\Debug\net8.0\MealyToMooreConverteCSharp.dll
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\bin\Debug\net8.0\MealyToMooreConverteCSharp.pdb
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\obj\Debug\net8.0\MealyToMooreConverteCSharp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\obj\Debug\net8.0\MealyToMooreConverteCSharp.AssemblyInfoInputs.cache
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\obj\Debug\net8.0\MealyToMooreConverteCSharp.AssemblyInfo.cs
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\obj\Debug\net8.0\MealyToMooreConverteCSharp.csproj.CoreCompileInputs.cache
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\obj\Debug\net8.0\MealyToMooreConverteCSharp.dll
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\obj\Debug\net8.0\refint\MealyToMooreConverteCSharp.dll
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\obj\Debug\net8.0\MealyToMooreConverteCSharp.pdb
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\obj\Debug\net8.0\MealyToMooreConverteCSharp.genruntimeconfig.cache
+C:\Users\dimas\Code\Volgatech\Automates\MealyToMooreConverteCSharp\obj\Debug\net8.0\ref\MealyToMooreConverteCSharp.dll
