@@ -499,17 +499,17 @@
         }
     }
 
-    static void Main(  )
+    static void Main( string[] args )
     {
-       /* if (args.Length != 3)
+        if (args.Length != 3)
         {
             Console.WriteLine("Usage: program <mealy-to-moore|moore-to-mealy> <input.csv> <output.csv>");
             return;
-        }*/
+        }
 
-        var command = "mealy-to-moore";
-        var inputFile = "7_mealy.csv";
-        var outputFile = "moore.csv";
+        var command = args[0];
+        var inputFile = args[1];
+        var outputFile = args[2];
 
         if (command == "mealy-to-moore")
         {
