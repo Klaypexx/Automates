@@ -99,10 +99,8 @@
         return mealyAutomata;
     }
 
-    static MooreAutomata RemoveUnreachableStatesMoore( MooreAutomata moore )
+    /*static MooreAutomata RemoveUnreachableStatesMoore( MooreAutomata moore )
     {
-        Console.WriteLine(moore.States.Count);
-
         var initialState = moore.States.First();
 
         var reachableStates = new HashSet<string>();
@@ -133,13 +131,7 @@
             }
         }
 
-        moore.States.IntersectWith(reachableStates);
-
-        moore.Outputs = moore.Outputs
-            .Where(o => reachableStates.Contains(o.Key))
-            .ToDictionary(o => o.Key, o => o.Value);
-
-        var filteredTransitions = new List<List<string>>();
+*//*        var filteredTransitions = new List<List<string>>();
 
         for (int index = 0; index < moore.Inputs.Count; index++)
         {
@@ -148,17 +140,107 @@
                 .ToList();
 
             filteredTransitions.Add(filteredStateTransitions);
+        }*//*
+
+        var filteredTransitions = new List<List<string>>();
+
+        // Предполагается, что mealy.Transitions[i] соответствует i-му входному символу
+        for (int index = 0; index < moore.Inputs.Count; index++)
+        {
+            // Здесь создаем список для каждого входного символа
+            var filteredStateTransitions = new List<string>();
+
+            foreach (string reachableState in reachableStates)
+            {
+                int currentIndex = moore.States.ToList().IndexOf(reachableState);
+                if (currentIndex == -1)
+                {
+                    throw new Exception("Значение индекса -1. Что то не так с reachableState");
+                }
+
+                // Предполагается, что mealy.Transitions[index] — это список переходов для index-го входного символа
+                var filteredStateTransition = moore.Transitions[index][currentIndex];
+                filteredStateTransitions.Add(filteredStateTransition);
+            }
+
+            // Добавляем список переходов для текущего входного символа
+            filteredTransitions.Add(filteredStateTransitions);
         }
+
+        moore.States.IntersectWith(reachableStates);
+
+        moore.Outputs = moore.Outputs
+            .Where(o => reachableStates.Contains(o.Key))
+            .ToDictionary(o => o.Key, o => o.Value);
 
         moore.Transitions = filteredTransitions;
 
-  /*      Console.WriteLine("\nStates after removal:");
-        Console.WriteLine(moore.States.Count);*/
+  *//*      Console.WriteLine("\nStates after removal:");
+        Console.WriteLine(moore.States.Count);*//*
+
+        return moore;
+    }*/
+
+    static MooreAutomata RemoveUnreachableStatesMoore( MooreAutomata moore )
+    {
+        // Предполагаем, что первое состояние в списке является начальным
+        var initialState = moore.States.First();
+
+        // Множество достижимых состояний
+        var reachableStates = new HashSet<string>();
+        var queue = new Queue<string>();
+
+        queue.Enqueue(initialState);
+        reachableStates.Add(initialState);
+
+        // Построение быстрого доступа к индексам состояний
+        var stateList = moore.States.ToList();
+        var stateIndexMap = stateList.Select(( state, index ) => new { state, index })
+                                     .ToDictionary(x => x.state, x => x.index);
+
+        while (queue.Count > 0)
+        {
+            var currentState = queue.Dequeue();
+
+            if (!stateIndexMap.TryGetValue(currentState, out var currentIndex))
+            {
+                continue;
+            }
+
+            foreach (var transition in moore.Transitions)
+            {
+                var nextState = transition[currentIndex];
+                if (reachableStates.Add(nextState))
+                {
+                    queue.Enqueue(nextState);
+                }
+            }
+        }
+
+        // Фильтрация переходов
+        var filteredTransitions = new List<List<string>>();
+        foreach (var transition in moore.Transitions)
+        {
+            var filteredStateTransitions = stateList
+                .Where(reachableStates.Contains)
+                .Select(state => transition[stateIndexMap[state]])
+                .ToList();
+
+            filteredTransitions.Add(filteredStateTransitions);
+        }
+
+        // Обновление состояний и выходов
+        moore.States = reachableStates;
+        moore.Outputs = moore.Outputs
+            .Where(o => reachableStates.Contains(o.Key))
+            .ToDictionary(o => o.Key, o => o.Value);
+        moore.Transitions = filteredTransitions;
 
         return moore;
     }
 
-    static MealyAutomata RemoveUnreachableStatesMealy( MealyAutomata mealy )
+
+    /*static MealyAutomata RemoveUnreachableStatesMealy( MealyAutomata mealy )
     {
         var initialState = mealy.States.First();
 
@@ -175,7 +257,7 @@
 
             if (currentIndex == -1)
             {
-                continue;
+                throw new Exception("Значение индекса -1. Что то не так с reachableState");
             }
 
             for (int index = 0; index < mealy.Inputs.Count; index++)
@@ -190,19 +272,89 @@
             }
         }
 
-        mealy.States.IntersectWith(reachableStates);
 
         var filteredTransitions = new List<List<(string NextState, string Output)>>();
 
+        // Предполагается, что mealy.Transitions[i] соответствует i-му входному символу
         for (int index = 0; index < mealy.Inputs.Count; index++)
         {
-            var filteredStateTransitions = mealy.Transitions[index]
-                .Where(t => reachableStates.Contains(t.NextState))
+            // Здесь создаем список для каждого входного символа
+            var filteredStateTransitions = new List<(string NextState, string Output)>();
+
+            foreach (string reachableState in reachableStates)
+            {
+                int currentIndex = mealy.States.ToList().IndexOf(reachableState);
+                if (currentIndex == -1)
+                {
+                    continue;
+                }
+
+                // Предполагается, что mealy.Transitions[index] — это список переходов для index-го входного символа
+                var filteredStateTransition = mealy.Transitions[index][currentIndex];
+                filteredStateTransitions.Add(filteredStateTransition);
+            }
+
+            // Добавляем список переходов для текущего входного символа
+            filteredTransitions.Add(filteredStateTransitions);
+        }
+
+        mealy.States.IntersectWith(reachableStates);
+
+        mealy.Transitions = filteredTransitions;
+
+        return mealy;
+    }*/
+
+    static MealyAutomata RemoveUnreachableStatesMealy( MealyAutomata mealy )
+    {
+        // Предполагаем, что первое состояние в списке является начальным
+        var initialState = mealy.States.First();
+
+        // Множество достижимых состояний
+        var reachableStates = new HashSet<string>();
+        var queue = new Queue<string>();
+
+        queue.Enqueue(initialState);
+        reachableStates.Add(initialState);
+
+        // Построение быстрого доступа к индексам состояний
+        var stateList = mealy.States.ToList();
+        var stateIndexMap = stateList.Select(( state, index ) => new { state, index })
+                                     .ToDictionary(x => x.state, x => x.index);
+
+        while (queue.Count > 0)
+        {
+            var currentState = queue.Dequeue();
+
+            if (!stateIndexMap.TryGetValue(currentState, out var currentIndex))
+            {
+                continue;
+            }
+
+            foreach (var transition in mealy.Transitions)
+            {
+                var nextState = transition[currentIndex].NextState;
+                if (reachableStates.Add(nextState))
+                {
+                    queue.Enqueue(nextState);
+                }
+            }
+        }
+
+        // Фильтрация переходов
+        var filteredTransitions = new List<List<(string NextState, string Output)>>();
+        foreach (var transition in mealy.Transitions)
+        {
+            var filteredStateTransitions = stateList
+                .Where(reachableStates.Contains)
+                .Select(state => transition[stateIndexMap[state]])
                 .ToList();
 
             filteredTransitions.Add(filteredStateTransitions);
         }
 
+        // Обновление состояний
+        mealy.States = reachableStates;
         mealy.Transitions = filteredTransitions;
 
         return mealy;
@@ -341,17 +493,17 @@
         }
     }
 
-    static void Main( string[] args )
+    static void Main(  )
     {
-        if (args.Length != 3)
+       /* if (args.Length != 3)
         {
             Console.WriteLine("Usage: program <mealy-to-moore|moore-to-mealy> <input.csv> <output.csv>");
             return;
-        }
+        }*/
 
-        var command = args[0];
-        var inputFile = args[1];
-        var outputFile = args[2];
+        var command = "mealy-to-moore";
+        var inputFile = "7_mealy.csv";
+        var outputFile = "moore.csv";
 
         if (command == "mealy-to-moore")
         {
