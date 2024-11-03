@@ -13,9 +13,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\dimas\\Code\\Volgatech\\Automates\\MealyToMooreConverteCSharp\\MealyToMooreConverteCSharp.csproj",
-      "projectName": "MealyToMooreConverteCSharp",
-      "projectPath": "C:\\Users\\dimas\\Code\\Volgatech\\Automates\\MealyToMooreConverteCSharp\\MealyToMooreConverteCSharp.csproj",
+      "projectUniqueName": "C:\\Users\\dimas\\Code\\Volgatech\\Automates\\MealyToMooreConverteCSharp\\MealyToMooreConverterCSharp.csproj",
+      "projectName": "MealyToMooreConverterCSharp",
+      "projectPath": "C:\\Users\\dimas\\Code\\Volgatech\\Automates\\MealyToMooreConverteCSharp\\MealyToMooreConverterCSharp.csproj",
       "packagesPath": "C:\\Users\\dimas\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\dimas\\Code\\Volgatech\\Automates\\MealyToMooreConverteCSharp\\obj\\",
       "projectStyle": "PackageReference",

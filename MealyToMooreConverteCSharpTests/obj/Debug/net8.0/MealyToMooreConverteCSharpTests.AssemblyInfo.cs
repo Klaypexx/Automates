@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MealyToMooreConverteCSharpTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9e5ef9e1b346c9bf764d1c2eea86de8eba0b628d")]
 [assembly: System.Reflection.AssemblyProductAttribute("MealyToMooreConverteCSharpTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MealyToMooreConverteCSharpTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
