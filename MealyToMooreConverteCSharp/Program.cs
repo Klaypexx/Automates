@@ -99,7 +99,8 @@
         return mealyAutomata;
     }
 
-    /*static MooreAutomata RemoveUnreachableStatesMoore( MooreAutomata moore )
+    //old logic
+/*    static MooreAutomata RemoveUnreachableStatesMoore( MooreAutomata moore )
     {
         var initialState = moore.States.First();
 
@@ -175,12 +176,13 @@
 
         moore.Transitions = filteredTransitions;
 
-  *//*      Console.WriteLine("\nStates after removal:");
-        Console.WriteLine(moore.States.Count);*//*
+        Console.WriteLine("\nStates after removal:");
+        Console.WriteLine(moore.States.Count);
 
         return moore;
     }*/
 
+    //optimize logic
     static MooreAutomata RemoveUnreachableStatesMoore( MooreAutomata moore )
     {
         // Предполагаем, что первое состояние в списке является начальным
@@ -229,17 +231,19 @@
             filteredTransitions.Add(filteredStateTransitions);
         }
 
-        // Обновление состояний и выходов
-        moore.States = reachableStates;
+        moore.States.IntersectWith(reachableStates);
+
         moore.Outputs = moore.Outputs
             .Where(o => reachableStates.Contains(o.Key))
             .ToDictionary(o => o.Key, o => o.Value);
+
+        // Обновление состояний и выходов
         moore.Transitions = filteredTransitions;
 
         return moore;
     }
 
-
+    //old logic
     /*static MealyAutomata RemoveUnreachableStatesMealy( MealyAutomata mealy )
     {
         var initialState = mealy.States.First();
@@ -305,6 +309,7 @@
         return mealy;
     }*/
 
+    //optimize logic
     static MealyAutomata RemoveUnreachableStatesMealy( MealyAutomata mealy )
     {
         // Предполагаем, что первое состояние в списке является начальным
@@ -354,7 +359,8 @@
         }
 
         // Обновление состояний
-        mealy.States = reachableStates;
+        mealy.States.IntersectWith(reachableStates);
+
         mealy.Transitions = filteredTransitions;
 
         return mealy;
