@@ -499,7 +499,7 @@
         }
     }
 
-    static void Main( string[] args )
+    static void Main(string[] args)
     {
         if (args.Length != 3)
         {
