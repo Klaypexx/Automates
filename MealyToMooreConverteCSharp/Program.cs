@@ -279,6 +279,36 @@ class AutomataConverter
             }
         }
 
+        // Отсортировать newStateMap в соответствии с порядком состояний в mealy.States
+        var sortedStateOutputPairs = new List<(string NextState, string Output)>();
+        foreach (var state in mealy.States)
+        {
+            foreach (var row in mealy.Transitions)
+            {
+                foreach (var (nextState, output) in row)
+                {
+                    if (nextState == state)
+                    {
+                        var combined = (nextState, output);
+                        if (!sortedStateOutputPairs.Contains(combined))
+                        {
+                            sortedStateOutputPairs.Add(combined);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Создать новый отсортированный newStateMap
+        var sortedNewStateMap = new Dictionary<(string NextState, string Output), string>();
+        foreach (var combined in sortedStateOutputPairs)
+        {
+            if (newStateMap.TryGetValue(combined, out var newState))
+            {
+                sortedNewStateMap[combined] = newState;
+            }
+        }
+
         // Заполнить переходы для автомата Мура
         int index = 0;
         for (int inputIndex = 0; inputIndex < mealy.Transitions.Count; inputIndex++)
@@ -290,9 +320,9 @@ class AutomataConverter
             {
                 string newState = newStateMap[mealy.Transitions[inputIndex][stateIndex]];
                 stateIndex++;
-                foreach (var map in newStateMap.Keys)
+                foreach (var state in sortedNewStateMap.Keys)
                 {
-                    if (mealyState == map.NextState)
+                    if (mealyState == state.NextState)
                     {
                         mooreTransitions[index] = newState;
                     }
@@ -392,16 +422,16 @@ class AutomataConverter
     //for testing
     /*static void Main()
     {
-        var command = "mealy-to-moore";
-        var inputFile = "2_mealy.csv";
-        var outputFile = "moore.csv";
+        var command = "moore-to-mealy";
+        var inputFile = "moore.csv";
+        var outputFile = "mealy.csv";
 
         if (command == "mealy-to-moore")
         {
             var mealyAut = ReadMealy(inputFile);
             mealyAut = RemoveUnreachableStatesMealy(mealyAut);
             var mooreAut = ConvertMealyToMoore(mealyAut);
-            *//*PrintMoore(mooreAut, outputFile);*//*
+            PrintMoore(mooreAut, outputFile);
         }
         else if (command == "moore-to-mealy")
         {
