@@ -259,28 +259,10 @@ class AutomataConverter
         };
 
         var uniqueStateOutputPairs = new HashSet<(string NextState, string Output)>();
-        var newStateMap = new Dictionary<(string NextState, string Output), string>();
+        var sortedNewStateMap = new Dictionary<(string NextState, string Output), string>();
         int newStateIndex = 0;
 
-        // Собрать уникальные пары состояние/выход и создать новые состояния для автомата Мура
-        foreach (var row in mealy.Transitions)
-        {
-            foreach (var (nextState, output) in row)
-            {
-                (string NextState, string Output) combined = (nextState, output);
-                if (!uniqueStateOutputPairs.Contains(combined))
-                {
-                    uniqueStateOutputPairs.Add(combined);
-                    string newState = "q" + newStateIndex++;
-                    newStateMap[combined] = newState;
-                    moore.States.Add(newState);
-                    moore.Outputs[newState] = output;
-                }
-            }
-        }
 
-        // Отсортировать newStateMap в соответствии с порядком состояний в mealy.States
-        var sortedStateOutputPairs = new List<(string NextState, string Output)>();
         foreach (var state in mealy.States)
         {
             foreach (var row in mealy.Transitions)
@@ -290,22 +272,16 @@ class AutomataConverter
                     if (nextState == state)
                     {
                         var combined = (nextState, output);
-                        if (!sortedStateOutputPairs.Contains(combined))
+                        if (!uniqueStateOutputPairs.Contains(combined))
                         {
-                            sortedStateOutputPairs.Add(combined);
+                            uniqueStateOutputPairs.Add(combined);
+                            string newState = "q" + newStateIndex++;
+                            sortedNewStateMap[combined] = newState;
+                            moore.States.Add(newState);
+                            moore.Outputs[newState] = output;
                         }
                     }
                 }
-            }
-        }
-
-        // Создать новый отсортированный newStateMap
-        var sortedNewStateMap = new Dictionary<(string NextState, string Output), string>();
-        foreach (var combined in sortedStateOutputPairs)
-        {
-            if (newStateMap.TryGetValue(combined, out var newState))
-            {
-                sortedNewStateMap[combined] = newState;
             }
         }
 
@@ -314,11 +290,11 @@ class AutomataConverter
         for (int inputIndex = 0; inputIndex < mealy.Transitions.Count; inputIndex++)
         {
             int stateIndex = 0;
-            var mooreTransitions = new List<string>(new string[newStateMap.Count]);
+            var mooreTransitions = new List<string>(new string[sortedNewStateMap.Count]);
 
             foreach (string mealyState in mealy.States)
             {
-                string newState = newStateMap[mealy.Transitions[inputIndex][stateIndex]];
+                string newState = sortedNewStateMap[mealy.Transitions[inputIndex][stateIndex]];
                 stateIndex++;
                 foreach (var state in sortedNewStateMap.Keys)
                 {
@@ -385,7 +361,7 @@ class AutomataConverter
     }
 
     //for prod
-    static void Main( string[] args )
+    /*static void Main( string[] args )
     {
         if (args.Length != 3)
         {
@@ -417,10 +393,10 @@ class AutomataConverter
         }
 
         Console.WriteLine("Done");
-    }
+    }*/
 
     //for testing
-    /*static void Main()
+    static void Main()
     {
         var command = "moore-to-mealy";
         var inputFile = "moore.csv";
@@ -446,5 +422,5 @@ class AutomataConverter
         }
 
         Console.WriteLine("Done");
-    }*/
+    }
 }
