@@ -265,12 +265,14 @@ class AutomataConverter
 
         foreach (var state in mealy.States)
         {
+            bool hasTransitions = false;
             foreach (var row in mealy.Transitions)
             {
                 foreach (var (nextState, output) in row)
                 {
                     if (nextState == state)
                     {
+                        hasTransitions = true;
                         var combined = (nextState, output);
                         if (!uniqueStateOutputPairs.Contains(combined))
                         {
@@ -282,6 +284,15 @@ class AutomataConverter
                         }
                     }
                 }
+            }
+
+            // Если ни одно состояние не найдено, добавить новое состояние с пустым выходом
+            if (!hasTransitions)
+            {
+                string newState = "q" + newStateIndex++;
+                sortedNewStateMap[(state, "")] = newState;
+                moore.States.Add(newState);
+                moore.Outputs[newState] = ""; // Пустой выход
             }
         }
 
@@ -361,7 +372,7 @@ class AutomataConverter
     }
 
     //for prod
-    static void Main( string[] args )
+    /*static void Main( string[] args )
     {
         if (args.Length != 3)
         {
@@ -393,10 +404,10 @@ class AutomataConverter
         }
 
         Console.WriteLine("Done");
-    }
+    }*/
 
     //for testing
-    /*static void Main()
+    static void Main()
     {
         var command = "moore-to-mealy";
         var inputFile = "moore.csv";
@@ -422,5 +433,5 @@ class AutomataConverter
         }
 
         Console.WriteLine("Done");
-    }*/
+    }
 }
