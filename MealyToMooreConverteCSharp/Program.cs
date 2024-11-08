@@ -372,7 +372,7 @@ class AutomataConverter
     }
 
     //for prod
-    /*static void Main( string[] args )
+    static void Main( string[] args )
     {
         if (args.Length != 3)
         {
@@ -404,10 +404,10 @@ class AutomataConverter
         }
 
         Console.WriteLine("Done");
-    }*/
+    }
 
     //for testing
-    static void Main()
+    /*static void Main()
     {
         var command = "moore-to-mealy";
         var inputFile = "moore.csv";
@@ -433,5 +433,5 @@ class AutomataConverter
         }
 
         Console.WriteLine("Done");
-    }
+    }*/
 }
