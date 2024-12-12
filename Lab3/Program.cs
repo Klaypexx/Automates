@@ -6,8 +6,8 @@ namespace GrammarReader
     {
         static void Main( string[] args )
         {
-            string inputFilePath = "grammarL.txt";
-            string outputFilePath = "output.txt";
+            string inputFilePath = args[0];
+            string outputFilePath = args[1];
 
             try
             {
@@ -36,7 +36,7 @@ namespace GrammarReader
                 }
                 // Парсинг грамматики
 
-                WriteToFile(grammar, "output1.csv");
+                WriteToFile(grammar, outputFilePath);
 
 
                 Console.WriteLine("Grammar Type: " + grammar.Type);
@@ -239,11 +239,11 @@ namespace GrammarReader
                 .ToList();
 
             // Создаем заголовки CSV
-            var csvHeader1 = new List<string> { "" };
-            csvHeader1.AddRange(states.Select(state => grammar.FinaleState == state ? "F" : ""));
+            var header1 = new List<string> { "" };
+            header1.AddRange(states.Select(state => grammar.FinaleState == state ? "F" : ""));
 
-            var csvHeader2 = new List<string> { "" };
-            csvHeader2.AddRange(Enumerable.Range(0, states.Count).Select(i => $"q{i}"));
+            var header2 = new List<string> { "" };
+            header2.AddRange(Enumerable.Range(0, states.Count).Select(i => $"q{i}"));
 
             var stateIndexMap = states.Select(( state, index ) => new { state, index })
                                       .ToDictionary(x => x.state, x => $"q{x.index}");
@@ -272,8 +272,8 @@ namespace GrammarReader
             // Записываем в файл
             using (var writer = new StreamWriter(outputFileName))
             {
-                writer.WriteLine(string.Join(";", csvHeader1));
-                writer.WriteLine(string.Join(";", csvHeader2));
+                writer.WriteLine(string.Join(";", header1));
+                writer.WriteLine(string.Join(";", header2));
                 foreach (var row in csvRows)
                 {
                     writer.WriteLine(string.Join(";", row));
