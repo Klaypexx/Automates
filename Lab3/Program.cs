@@ -6,8 +6,8 @@ namespace GrammarReader
     {
         static void Main( string[] args )
         {
-            string inputFilePath = "grammarL.txt";
-            string outputFilePath = "output.txt";
+            string inputFilePath = args[0];
+            string outputFilePath = args[1];
 
             try
             {
@@ -36,7 +36,7 @@ namespace GrammarReader
                 }
                 // Парсинг грамматики
 
-                WriteToFile(grammar, "output1.csv");
+                WriteToFile(grammar, outputFilePath);
 
 
                 Console.WriteLine("Grammar Type: " + grammar.Type);
