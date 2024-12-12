@@ -249,7 +249,7 @@ namespace GrammarReader
                                       .ToDictionary(x => x.state, x => $"q{x.index}");
 
             // Создаем строки для CSV
-            var csvRows = new List<List<string>>();
+            var rows = new List<List<string>>();
 
             foreach (var symbol in symbols)
             {
@@ -266,7 +266,7 @@ namespace GrammarReader
                         row.Add("");
                     }
                 }
-                csvRows.Add(row);
+                rows.Add(row);
             }
 
             // Записываем в файл
@@ -274,7 +274,7 @@ namespace GrammarReader
             {
                 writer.WriteLine(string.Join(";", header1));
                 writer.WriteLine(string.Join(";", header2));
-                foreach (var row in csvRows)
+                foreach (var row in rows)
                 {
                     writer.WriteLine(string.Join(";", row));
                 }
