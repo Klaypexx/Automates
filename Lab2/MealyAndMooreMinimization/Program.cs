@@ -476,45 +476,45 @@ class AutomataConverter
     }
 
     //for prod
-    static void Main( string[] args )
-    {
-        if (args.Length != 3)
+    /*    static void Main( string[] args )
         {
-            Console.WriteLine("Usage: program <mealy|moore> <input.csv> <output.csv>");
-            return;
-        }
+            if (args.Length != 3)
+            {
+                Console.WriteLine("Usage: program <mealy|moore> <input.csv> <output.csv>");
+                return;
+            }
 
-        var command = args[0];
-        var inputFile = args[1];
-        var outputFile = args[2];
+            var command = args[0];
+            var inputFile = args[1];
+            var outputFile = args[2];
 
-        if (command == "mealy")
-        {
-            var mealyAut = ReadMealy(inputFile);
-            mealyAut = RemoveUnreachableStatesMealy(mealyAut);
-            var minimizeMealy = MinimizeMealy(mealyAut);
-            PrintMealy(minimizeMealy, outputFile);
-        }
-        else if (command == "moore")
-        {
-            var mooreAut = ReadMoore(inputFile);
-            mooreAut = RemoveUnreachableStatesMoore(mooreAut);
-            var minimizeMoore = MinimizeMoore(mooreAut);
-            PrintMoore(minimizeMoore, outputFile);
-        }
-        else
-        {
-            Console.WriteLine("Invalid command. Use 'mealy' or 'moore'.");
-        }
+            if (command == "mealy")
+            {
+                var mealyAut = ReadMealy(inputFile);
+                mealyAut = RemoveUnreachableStatesMealy(mealyAut);
+                var minimizeMealy = MinimizeMealy(mealyAut);
+                PrintMealy(minimizeMealy, outputFile);
+            }
+            else if (command == "moore")
+            {
+                var mooreAut = ReadMoore(inputFile);
+                mooreAut = RemoveUnreachableStatesMoore(mooreAut);
+                var minimizeMoore = MinimizeMoore(mooreAut);
+                PrintMoore(minimizeMoore, outputFile);
+            }
+            else
+            {
+                Console.WriteLine("Invalid command. Use 'mealy' or 'moore'.");
+            }
 
-        Console.WriteLine("Done");
-    }
+            Console.WriteLine("Done");
+        }*/
 
     //for testing
-/*    static void Main()
+    static void Main()
     {
         var command = "mealy-minimize";
-        var inputFile = "6_mealy.csv";
+        var inputFile = "1_mealy.csv";
         var outputFile = "moore.csv";
 
         if (command == "mealy-minimize")
@@ -537,5 +537,5 @@ class AutomataConverter
         }
 
         Console.WriteLine("Done");
-    }*/
+    }
 }
