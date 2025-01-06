@@ -281,8 +281,6 @@ namespace GrammarReader
             }
         }
 
-
-
         class Grammar
         {
             public GrammarType Type { get; set; } = GrammarType.Undefined;
