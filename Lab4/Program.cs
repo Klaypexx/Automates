@@ -2,8 +2,8 @@ class Program
 {
     static void Main( string[] args )
     {
-        string inputFilePath = "input.csv";
-        string outputFilePath = "output.csv";
+        string inputFilePath = args[0];
+        string outputFilePath = args[1];
 
         List<State> inputStates = new();
         List<Epsilon> statesWithEpsilon = new();
