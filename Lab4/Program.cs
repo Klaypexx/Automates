@@ -69,14 +69,36 @@ class Program
 
         foreach (var state in inputStates)
         {
-            if (state.Transitions.ContainsKey("ε"))
+            Epsilon tempEpsilonState = new()
             {
-                epsilonStates.Add(new Epsilon
+                StateName = state.StateName,
+                TransitionsName = new List<string>()
+            };
+
+            HashSet<string> statesList = new HashSet<string> { state.StateName };
+            Queue<string> queue = new Queue<string>(statesList);
+
+            while (queue.Count > 0)
+            {
+                string currentStateName = queue.Dequeue();
+
+                var currentState = inputStates.FirstOrDefault(s => s.StateName == currentStateName);
+
+                if (currentState != null && currentState.Transitions.ContainsKey("ε"))
                 {
-                    StateName = state.StateName,
-                    TransitionsName = state.Transitions["ε"]
-                });
+                    foreach (var transition in currentState.Transitions["ε"])
+                    {
+                        if (!statesList.Contains(transition))
+                        {
+                            statesList.Add(transition);
+                            queue.Enqueue(transition);
+                        }
+                    }
+                }
             }
+
+            tempEpsilonState.TransitionsName.AddRange(statesList);
+            epsilonStates.Add(tempEpsilonState);
         }
 
         return epsilonStates;
@@ -111,6 +133,7 @@ class Program
                 List<string> transitions = inputStates
                     .Where(iState => dependency.Any(s => iState.StateName.SequenceEqual(s)))
                     .SelectMany(iState => iState.Transitions[symbol])
+                    .Distinct()
                     .ToList();
 
                 string newStateKey = "";
@@ -146,7 +169,6 @@ class Program
         HashSet<string> dependency = [];
         foreach (var state in statesToIterate[newState])
         {
-            dependency.Add(state);
             foreach (var epsilonState in statesWithEpsilon)
             {
                 if (state == epsilonState.StateName)
@@ -164,10 +186,16 @@ class Program
 
     static string FindNewStateKey( Dictionary<string, List<string>> iterateStates, List<string> transitionsToCheck )
     {
+        // Преобразуем transitionsToCheck в HashSet для удобства сравнения
+        var transitionsSet = new HashSet<string>(transitionsToCheck);
+
         foreach (var (key, value) in iterateStates)
         {
-            // Если найдено совпадение, возвращаем true
-            if (value.SequenceEqual(transitionsToCheck))
+            // Преобразуем value в HashSet и сравниваем с transitionsSet
+            var valueSet = new HashSet<string>(value);
+
+            // Сравниваем два HashSet
+            if (valueSet.SetEquals(transitionsSet))
             {
                 return key;
             }
