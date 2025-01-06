@@ -1,9 +1,9 @@
-﻿class Program
+class Program
 {
     static void Main( string[] args )
     {
-        string inputFilePath = args[0];
-        string outputFilePath = args[1];
+        string inputFilePath = "input.csv";
+        string outputFilePath = "output.csv";
 
         List<State> inputStates = new();
         List<Epsilon> statesWithEpsilon = new();
@@ -146,11 +146,11 @@
         HashSet<string> dependency = [];
         foreach (var state in statesToIterate[newState])
         {
+            dependency.Add(state);
             foreach (var epsilonState in statesWithEpsilon)
             {
                 if (state == epsilonState.StateName)
                 {
-                    dependency.Add(epsilonState.StateName);
                     foreach (var transition in epsilonState.TransitionsName)
                     {
                         dependency.Add(transition);
