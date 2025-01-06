@@ -109,7 +109,7 @@ class Program
             foreach (string symbol in inputStates[0].Transitions.Keys.Where(name => name != "ε"))
             {
                 List<string> transitions = inputStates
-                    .Where(iState => dependency.Any(s => iState.StateName.Contains(s)))
+                    .Where(iState => dependency.Any(s => iState.StateName.SequenceEqual(s)))
                     .SelectMany(iState => iState.Transitions[symbol])
                     .ToList();
 
