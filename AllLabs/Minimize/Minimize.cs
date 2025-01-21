@@ -1,20 +1,55 @@
-﻿using System.Collections.Generic;
+﻿using System.Text;
+
+class MooreAutomata
+{
+    public Dictionary<string, string> Outputs;
+    public List<List<string>> Transitions;
+    public HashSet<string> States;
+    public HashSet<string> Inputs;
+}
+
+class MealyAutomata
+{
+    public List<List<(string NextState, string Output)>> Transitions;
+    public HashSet<string> States;
+    public HashSet<string> Inputs;
+}
 
 class AutomataConverter
 {
-    struct MooreAutomata
+    //for prod
+    static void Main( string[] args )
     {
-        public Dictionary<string, string> Outputs;
-        public List<List<string>> Transitions;
-        public HashSet<string> States;
-        public HashSet<string> Inputs;
-    }
+        if (args.Length != 3)
+        {
+            Console.WriteLine("Usage: program <mealy|moore> <input.csv> <output.csv>");
+            return;
+        }
 
-    struct MealyAutomata
-    {
-        public List<List<(string NextState, string Output)>> Transitions;
-        public HashSet<string> States;
-        public HashSet<string> Inputs;
+        var command = args[0];
+        var inputFile = args[1];
+        var outputFile = args[2];
+
+        if (command == "mealy")
+        {
+            var mealyAut = ReadMealy(inputFile);
+            mealyAut = RemoveUnreachableStatesMealy(mealyAut);
+            var minimizeMealy = MinimizeMealy(mealyAut);
+            PrintMealy(minimizeMealy, outputFile);
+        }
+        else if (command == "moore")
+        {
+            var mooreAut = ReadMoore(inputFile);
+            mooreAut = RemoveUnreachableStatesMoore(mooreAut);
+            var minimizeMoore = MinimizeMoore(mooreAut);
+            PrintMoore(minimizeMoore, outputFile);
+        }
+        else
+        {
+            Console.WriteLine("Invalid command. Use 'mealy' or 'moore'.");
+        }
+
+        Console.WriteLine("Done");
     }
 
     static MooreAutomata ReadMoore( string inputFile )
@@ -217,141 +252,112 @@ class AutomataConverter
         return mealy;
     }
 
-    static void PrintMealy( MealyAutomata mealy, string outputFile )
-    {
-        using (StreamWriter writer = new StreamWriter(outputFile))
-        {
-            var header = ";" + string.Join(";", mealy.States);
-            writer.WriteLine(header);
-
-            var inputs = mealy.Inputs.ToList();
-
-            for (int i = 0; i < inputs.Count; i++)
-            {
-                var line = inputs[i];
-                for (int j = 0; j < mealy.States.Count; j++)
-                {
-                    var transition = mealy.Transitions[i][j];
-                    line += $";{transition.NextState}/{transition.Output}";
-                }
-                writer.WriteLine(line);
-            }
-        }
-    }
-
-    static void PrintMoore( MooreAutomata moore, string outputFile )
-    {
-        using (StreamWriter writer = new StreamWriter(outputFile))
-        {
-            var outputs = ";" + string.Join(";", moore.Outputs.Select(x => $"{x.Value}"));
-            writer.WriteLine(outputs);
-
-            var header = ";" + string.Join(";", moore.States.Select(x => $"{x}"));
-            writer.WriteLine(header);
-
-            var inputs = moore.Inputs.ToList();
-
-            for (int i = 0; i < inputs.Count; i++)
-            {
-                var line = inputs[i];
-                for (int j = 0; j < moore.States.Count; j++)
-                {
-                    var nextState = moore.Transitions[i][j];
-                    line += $";{nextState}";
-                }
-                writer.WriteLine(line);
-            }
-        }
-    }
-
     static MooreAutomata MinimizeMoore( MooreAutomata moore )
     {
         // Шаг 1: Создание начального разбиения по выходам
-        var partition = new Dictionary<string, HashSet<string>>();
-
+        var outputGroups = new Dictionary<string, HashSet<string>>();
         foreach (var state in moore.States)
         {
-            var output = moore.Outputs[state] ?? "-"; // Используем "-" для обозначения пустого выхода
-            if (!partition.ContainsKey(output))
+            var output = moore.Outputs[state];
+            if (!outputGroups.ContainsKey(output))
             {
-                partition[output] = new HashSet<string>();
+                outputGroups[output] = new HashSet<string>();
             }
-            partition[output].Add(state);
+            outputGroups[output].Add(state);
         }
 
-        // Шаг 2: Итеративное разбиение на классы эквивалентности
-        bool changed;
-        do
-        {
-            changed = false;
-            var newPartition = new Dictionary<string, HashSet<string>>();
+        var partitions = outputGroups.Values.ToList();
 
-            foreach (var group in partition.Values)
+        // Функция для уточнения разбиения
+        List<HashSet<string>> Refine( List<HashSet<string>> currentPartitions )
+        {
+            var newPartitions = new List<HashSet<string>>();
+            var stateToPartitionMap = moore.States.ToDictionary(
+                state => state,
+                state => currentPartitions.FindIndex(partition => partition.Contains(state))
+            );
+
+            foreach (var group in currentPartitions)
             {
                 var subGroups = new Dictionary<string, HashSet<string>>();
 
                 foreach (var state in group)
                 {
-                    var signature = string.Join(";", moore.Inputs.Select(input =>
-                    {
-                        var inputIndex = moore.Inputs.ToList().IndexOf(input);
-                        var nextState = moore.Transitions[inputIndex][moore.States.ToList().IndexOf(state)];
-                        var nextStateClass = partition.First(part => part.Value.Contains(nextState)).Key;
-                        return nextStateClass;
-                    }));
+                    var key = new StringBuilder();
 
-                    if (!subGroups.ContainsKey(signature))
+                    foreach (var input in moore.Inputs)
                     {
-                        subGroups[signature] = new HashSet<string>();
+                        string nextState = GetNextState(moore, state, input);
+
+                        if (nextState != null && moore.States.Contains(nextState))
+                        {
+                            var partitionIndex = stateToPartitionMap[nextState];
+                            key.Append($"{input}{partitionIndex}");
+                        }
                     }
-                    subGroups[signature].Add(state);
+
+                    var keyString = key.ToString();
+                    if (!subGroups.ContainsKey(keyString))
+                    {
+                        subGroups[keyString] = new HashSet<string>();
+                    }
+                    subGroups[keyString].Add(state);
                 }
 
-                foreach (var subGroup in subGroups.Values)
-                {
-                    var key = string.Join(",", subGroup);
-                    newPartition[key] = subGroup;
-                    if (subGroup.Count != group.Count)
-                    {
-                        changed = true;
-                    }
-                }
+                newPartitions.AddRange(subGroups.Values);
             }
 
-            partition = newPartition;
-        } while (changed);
+            return newPartitions;
+        }
 
-        // Шаг 3: Построение минимизированного автомата с новыми именами состояний
+        // Функция для получения следующего состояния
+        string GetNextState( MooreAutomata moore, string state, string input )
+        {
+            var inputIndex = moore.Inputs.ToList().IndexOf(input);
+            var stateIndex = moore.States.ToList().IndexOf(state);
+
+            // Предполагается, что Transitions имеет правильные размеры
+            return moore.Transitions[inputIndex][stateIndex];
+        }
+
+        // Итеративное уточнение разбиения
+        bool partitionsChanged;
+        do
+        {
+            var newPartitions = Refine(partitions);
+            partitionsChanged = newPartitions.Count != partitions.Count;
+            partitions = newPartitions;
+        } while (partitionsChanged);
+
+        // Построение минимизированного автомата
+        var stateMap = new Dictionary<string, string>();
         var minimizedStates = new HashSet<string>();
         var minimizedOutputs = new Dictionary<string, string>();
         var minimizedTransitions = new List<List<string>>();
-        var stateMapping = new Dictionary<string, string>();
-        var index = 1;
 
-        foreach (var group in partition.Values)
+        for (int i = 0; i < partitions.Count; i++)
         {
-            var newStateName = $"X{index++}";
-            minimizedStates.Add(newStateName);
-
-            var representative = group.First();
-            minimizedOutputs[newStateName] = moore.Outputs[representative] ?? "-";
-
+            var group = partitions[i];
+            var newState = $"S{i}";
             foreach (var state in group)
             {
-                stateMapping[state] = newStateName;
+                stateMap[state] = newState;
             }
+            minimizedStates.Add(newState);
+            var representative = group.First();
+            minimizedOutputs[newState] = moore.Outputs[representative];
         }
 
         foreach (var input in moore.Inputs)
         {
             var transitionsForInput = new List<string>();
 
-            foreach (var group in partition.Values)
+            foreach (var group in partitions)
             {
                 var representative = group.First();
-                var stateIndex = moore.States.ToList().IndexOf(representative);
-                var nextState = moore.Transitions[moore.Inputs.ToList().IndexOf(input)][stateIndex];
-                transitionsForInput.Add(stateMapping[nextState]);
+                string nextState = GetNextState(moore, representative, input);
+
+                transitionsForInput.Add(nextState != null && stateMap.ContainsKey(nextState) ? stateMap[nextState] : "");
             }
 
             minimizedTransitions.Add(transitionsForInput);
@@ -365,7 +371,6 @@ class AutomataConverter
             Transitions = minimizedTransitions
         };
     }
-
 
 
     static MealyAutomata MinimizeMealy( MealyAutomata mealy )
@@ -475,67 +480,50 @@ class AutomataConverter
         };
     }
 
-    //for prod
-    static void Main( string[] args )
+    static void PrintMealy( MealyAutomata mealy, string outputFile )
     {
-        if (args.Length != 3)
+        using (StreamWriter writer = new StreamWriter(outputFile))
         {
-            Console.WriteLine("Usage: program <mealy|moore> <input.csv> <output.csv>");
-            return;
-        }
+            var header = ";" + string.Join(";", mealy.States);
+            writer.WriteLine(header);
 
-        var command = args[0];
-        var inputFile = args[1];
-        var outputFile = args[2];
+            var inputs = mealy.Inputs.ToList();
 
-        if (command == "mealy")
-        {
-            var mealyAut = ReadMealy(inputFile);
-            mealyAut = RemoveUnreachableStatesMealy(mealyAut);
-            var minimizeMealy = MinimizeMealy(mealyAut);
-            PrintMealy(minimizeMealy, outputFile);
+            for (int i = 0; i < inputs.Count; i++)
+            {
+                var line = inputs[i];
+                for (int j = 0; j < mealy.States.Count; j++)
+                {
+                    var transition = mealy.Transitions[i][j];
+                    line += $";{transition.NextState}/{transition.Output}";
+                }
+                writer.WriteLine(line);
+            }
         }
-        else if (command == "moore")
-        {
-            var mooreAut = ReadMoore(inputFile);
-            mooreAut = RemoveUnreachableStatesMoore(mooreAut);
-            var minimizeMoore = MinimizeMoore(mooreAut);
-            PrintMoore(minimizeMoore, outputFile);
-        }
-        else
-        {
-            Console.WriteLine("Invalid command. Use 'mealy' or 'moore'.");
-        }
-
-        Console.WriteLine("Done");
     }
 
-    //for testing
-    /*static void Main()
+    static void PrintMoore( MooreAutomata moore, string outputFile )
     {
-        var command = "mealy-minimize";
-        var inputFile = "1_mealy.csv";
-        var outputFile = "moore.csv";
+        using (StreamWriter writer = new StreamWriter(outputFile))
+        {
+            var outputs = ";" + string.Join(";", moore.Outputs.Select(x => $"{x.Value}"));
+            writer.WriteLine(outputs);
 
-        if (command == "mealy-minimize")
-        {
-            var mealyAut = ReadMealy(inputFile);
-            mealyAut = RemoveUnreachableStatesMealy(mealyAut);
-            var minimizeMealy = MinimizeMealy(mealyAut);
-            PrintMealy(minimizeMealy, outputFile);
-        }
-        else if (command == "moore-minimize")
-        {
-            var mooreAut = ReadMoore(inputFile);
-            mooreAut = RemoveUnreachableStatesMoore(mooreAut);
-            var minimizeMoore = MinimizeMoore(mooreAut);
-            PrintMoore(minimizeMoore, outputFile);
-        }
-        else
-        {
-            Console.WriteLine("Invalid command. Use 'mealy-minimize' or 'moore-minimize'.");
-        }
+            var header = ";" + string.Join(";", moore.States.Select(x => $"{x}"));
+            writer.WriteLine(header);
 
-        Console.WriteLine("Done");
-    }*/
+            var inputs = moore.Inputs.ToList();
+
+            for (int i = 0; i < inputs.Count; i++)
+            {
+                var line = inputs[i];
+                for (int j = 0; j < moore.States.Count; j++)
+                {
+                    var nextState = moore.Transitions[i][j];
+                    line += $";{nextState}";
+                }
+                writer.WriteLine(line);
+            }
+        }
+    }
 }

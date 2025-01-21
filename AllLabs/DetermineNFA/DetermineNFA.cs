@@ -1,9 +1,28 @@
-class Program
+﻿class State
+{
+    public bool IsFinit { get; set; } = false;
+    public string StateName { get; set; }
+    public Dictionary<string, List<string>> Transitions { get; set; }
+}
+
+class Epsilon
+{
+    public string StateName { get; set; }
+    public List<string> TransitionsName { get; set; } = [];
+}
+
+class DetermineNFA
 {
     static void Main( string[] args )
     {
-        string inputFilePath = "input.csv";
-        string outputFilePath = "output.csv";
+        if (args.Length != 2)
+        {
+            Console.WriteLine("Usage: program <input.csv> <output.csv>");
+            return;
+        }
+
+        string inputFilePath = args[0];
+        string outputFilePath = args[1];
 
         List<State> inputStates = new();
         List<Epsilon> statesWithEpsilon = new();
@@ -243,18 +262,5 @@ class Program
         {
             writer.WriteLine(string.Join(";", row)); // Записываем каждую строку в файл
         }
-    }
-
-    class State
-    {
-        public bool IsFinit { get; set; } = false;
-        public string StateName { get; set; }
-        public Dictionary<string, List<string>> Transitions { get; set; }
-    }
-
-    class Epsilon
-    {
-        public string StateName { get; set; }
-        public List<string> TransitionsName { get; set; } = [];
     }
 }
