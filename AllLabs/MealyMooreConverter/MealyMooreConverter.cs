@@ -1,22 +1,52 @@
-﻿using System.Collections.Generic;
-
-class AutomataConverter
+﻿class MooreAutomata
 {
-    const string MOORE_STATE = "R";
+    public Dictionary<string, string> Outputs;
+    public List<List<string>> Transitions;
+    public HashSet<string> States;
+    public HashSet<string> Inputs;
+}
 
-    struct MooreAutomata
-    {
-        public Dictionary<string, string> Outputs;
-        public List<List<string>> Transitions;
-        public HashSet<string> States;
-        public HashSet<string> Inputs;
-    }
+class MealyAutomata
+{
+    public List<List<(string NextState, string Output)>> Transitions;
+    public HashSet<string> States;
+    public HashSet<string> Inputs;
+}
 
-    struct MealyAutomata
+class MealyMooreConverter
+{
+    static void Main( string[] args )
     {
-        public List<List<(string NextState, string Output)>> Transitions;
-        public HashSet<string> States;
-        public HashSet<string> Inputs;
+        if (args.Length != 3)
+        {
+            Console.WriteLine("Usage: program <mealy-to-moore|moore-to-mealy> <input.csv> <output.csv>");
+            return;
+        }
+
+        var command = args[0];
+        var inputFile = args[1];
+        var outputFile = args[2];
+
+        if (command == "mealy-to-moore")
+        {
+            var mealyAut = ReadMealy(inputFile);
+            mealyAut = RemoveUnreachableStatesMealy(mealyAut);
+            var mooreAut = ConvertMealyToMoore(mealyAut);
+            PrintMoore(mooreAut, outputFile);
+        }
+        else if (command == "moore-to-mealy")
+        {
+            var mooreAut = ReadMoore(inputFile);
+            mooreAut = RemoveUnreachableStatesMoore(mooreAut);
+            var mealyAut = ConvertMooreToMealy(mooreAut);
+            PrintMealy(mealyAut, outputFile);
+        }
+        else
+        {
+            Console.WriteLine("Invalid command. Use 'mealy-to-moore' or 'moore-to-mealy'.");
+        }
+
+        Console.WriteLine("Done");
     }
 
     static MooreAutomata ReadMoore( string inputFile )
@@ -369,69 +399,5 @@ class AutomataConverter
                 writer.WriteLine(line);
             }
         }
-    }
-
-    //for prod
-    /*    static void Main( string[] args )
-        {
-            if (args.Length != 3)
-            {
-                Console.WriteLine("Usage: program <mealy-to-moore|moore-to-mealy> <input.csv> <output.csv>");
-                return;
-            }
-
-            var command = args[0];
-            var inputFile = args[1];
-            var outputFile = args[2];
-
-            if (command == "mealy-to-moore")
-            {
-                var mealyAut = ReadMealy(inputFile);
-                mealyAut = RemoveUnreachableStatesMealy(mealyAut);
-                var mooreAut = ConvertMealyToMoore(mealyAut);
-                PrintMoore(mooreAut, outputFile);
-            }
-            else if (command == "moore-to-mealy")
-            {
-                var mooreAut = ReadMoore(inputFile);
-                mooreAut = RemoveUnreachableStatesMoore(mooreAut);
-                var mealyAut = ConvertMooreToMealy(mooreAut);
-                PrintMealy(mealyAut, outputFile);
-            }
-            else
-            {
-                Console.WriteLine("Invalid command. Use 'mealy-to-moore' or 'moore-to-mealy'.");
-            }
-
-            Console.WriteLine("Done");
-        }*/
-
-    //for testing
-    static void Main()
-    {
-        var command = "mealy-to-moore";
-        var inputFile = "1_mealy.csv";
-        var outputFile = "moore.csv";
-
-        if (command == "mealy-to-moore")
-        {
-            var mealyAut = ReadMealy(inputFile);
-            mealyAut = RemoveUnreachableStatesMealy(mealyAut);
-            var mooreAut = ConvertMealyToMoore(mealyAut);
-            PrintMoore(mooreAut, outputFile);
-        }
-        else if (command == "moore-to-mealy")
-        {
-            var mooreAut = ReadMoore(inputFile);
-            mooreAut = RemoveUnreachableStatesMoore(mooreAut);
-            var mealyAut = ConvertMooreToMealy(mooreAut);
-            PrintMealy(mealyAut, outputFile);
-        }
-        else
-        {
-            Console.WriteLine("Invalid command. Use 'mealy-to-moore' or 'moore-to-mealy'.");
-        }
-
-        Console.WriteLine("Done");
     }
 }
