@@ -1,3 +1,3 @@
 dispatcher: dotnet8 # только так пока что
-projectDirectory: AllLabs\RegexToNFA # путь от корня репозитория до директории, в которой находится CMakeLists.txt
-target: AllLabs\RegexToNFA # таргет (он указан в CMakeLists.txt, например в "add_executable(mealy_moore_converter main.cpp)")
+projectDirectory: Lab5 # путь от корня репозитория до директории, в которой находится CMakeLists.txt
+target: Lab5 # таргет (он указан в CMakeLists.txt, например в "add_executable(mealy_moore_converter main.cpp)")
